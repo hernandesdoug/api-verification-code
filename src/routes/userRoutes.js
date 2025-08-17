@@ -5,11 +5,11 @@ const userRoutes = express.Router();
 
 userRoutes.get("/user", userController.getUser);
 
-// userRoutes.get("/user/:id", userController.getUser);
+// userRoutes.get("/user/:id", userController.getUserById);
 
 userRoutes.post("/user", userController.postUser);
 
-// userRoutes.post("/user/login", userController.postUser);
+userRoutes.post("/user/login", userController.postUserByLogin);
 
 // userRoutes.put("/user/:id", userController.putUser);
 
