@@ -74,7 +74,7 @@ exports.postUserByLogin = async (request, response) => {
     }
 };
 
-exports.gerUserById = async (request, response) => {
+exports.getUserById = async (request, response) => {
     try {
         const id = request.params.id;
         const result = await Users.findOne({

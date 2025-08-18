@@ -5,14 +5,14 @@ const userRoutes = express.Router();
 
 userRoutes.get("/user", userController.getUser);
 
-// userRoutes.get("/user/:id", userController.getUserById);
+userRoutes.get("/user/:id", userController.getUserById);
 
 userRoutes.post("/user", userController.postUser);
 
 userRoutes.post("/user/login", userController.postUserByLogin);
 
-// userRoutes.put("/user/:id", userController.updateUser);
+userRoutes.put("/user/:id", userController.updateUser);
 
-// userRoutes.delete("/user/:id", userController.deleteUser);
+userRoutes.delete("/user/:id", userController.deleteUser);
 
 module.exports = userRoutes;
