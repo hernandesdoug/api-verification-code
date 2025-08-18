@@ -19,7 +19,7 @@ exports.postUser = async (request, response) => {
 
         if (!firstName) {
             return response.status(400).json({
-                message: "Please, enter with your full name!",
+                message: "Please, enter with your first name!",
                 type: "error",
             });
         }
@@ -69,6 +69,56 @@ exports.postUserByLogin = async (request, response) => {
         response.json(error);
         response.status(500).json({
             message: "Signin Failed!",
+            type: "error",
+        });
+    }
+};
+
+exports.gerUserById = async (request, response) => {
+    try {
+        const id = request.params.id;
+        const result = await Users.findOne({
+            where: { id }
+        });
+        response.json(result);
+    } catch (error) {
+        response.status(500).json({
+            message: "Recover Id Failed!",
+            type: "error",
+        });
+    }
+};
+
+exports.updateUser = async (request, response) => {
+    try {
+        const id = request.params.id;
+        const body = request.body;
+        const result = await User.update(body, {
+            where: { id }
+        });
+        response.json(result);
+    } catch (error) {
+        response.status(500).json({
+            message: "Update Failed!",
+            type: "error",
+        });
+    }
+};
+
+exports.deleteUser = async (request, response) => {
+    try {
+        const id = request.params.id;
+        const result = await User.destroy({
+            where: { id }
+        });
+        console.log(result);
+        response.status(201).json({
+            message: "User deleted successfully",
+            type: "success"
+        })
+    } catch (error) {
+        response.status(500).json({
+            message: "Delete Failed!",
             type: "error",
         });
     }

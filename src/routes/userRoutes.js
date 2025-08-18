@@ -11,7 +11,7 @@ userRoutes.post("/user", userController.postUser);
 
 userRoutes.post("/user/login", userController.postUserByLogin);
 
-// userRoutes.put("/user/:id", userController.putUser);
+// userRoutes.put("/user/:id", userController.updateUser);
 
 // userRoutes.delete("/user/:id", userController.deleteUser);
 
