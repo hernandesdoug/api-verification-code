@@ -39,7 +39,7 @@ exports.postUser = async (request, response) => {
     }
 };
 
-exports.postUserByLogin = async (request, response) => {
+exports.postUserByLogin = async(request, response) => {
     try {
         const { email, password } = request.body;
         console.log(email);
@@ -50,14 +50,14 @@ exports.postUserByLogin = async (request, response) => {
             return response.status(400).json({
                 message: "User does not exist!",
                 type: "error"
-            });
+            })
         }
 
         if (password !== user.password) {
             return response.status(400).json({
                 message: "Incorrect Password",
                 type: "error",
-            });
+            })
         }
         return response.status(200).json({
             message: "Login Successfully!",
@@ -66,9 +66,8 @@ exports.postUserByLogin = async (request, response) => {
         })
 
     } catch (error) {
-        response.json(error);
         response.status(500).json({
-            message: "Signin Failed!",
+            message: "Sign In Failed!",
             type: "error",
         });
     }
@@ -77,7 +76,7 @@ exports.postUserByLogin = async (request, response) => {
 exports.getUserById = async (request, response) => {
     try {
         const id = request.params.id;
-        const result = await Users.findOne({
+        const result = await User.findOne({
             where: { id }
         });
         response.json(result);
