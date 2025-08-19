@@ -1,4 +1,17 @@
+const { response } = require("express");
 const User = require("../models/user");
+const nodemailer = require("nodemailer");
+const { json } = require("sequelize");
+
+const transport = nodemailer.createTransport({
+    host: "smtp-mail.outlook.com",
+    port: 587,
+    secure: false,
+    auth: {
+        user: process.env.EMAIL_USER, 
+        pass: process.env.EMAIL_PASSWORD
+    }
+});
 
 exports.getUser = async (request, response) => {
     try {
@@ -23,15 +36,38 @@ exports.postUser = async (request, response) => {
                 type: "error",
             });
         }
-        const newUser = new User({ firstName, lastName, email, dateBirth, phoneNumber, password })
+        let verificationCode = "";
+        for (let i = 0; i < 4; i++){
+            verificationCode += Math.floor(Math.random()*9);
+        }
+        const newUser = new User({ firstName, lastName, email, dateBirth, phoneNumber, password, verificationCode })
         await newUser.save();
-        response.status(201).json({
+        try {
+            await transport.sendMail({
+                from: "devcontateste@outlook.com",
+                to: email,
+                subject: "Verification Code",
+                text: `Hello, here your verification code ${verificationCode}`
+            }); 
+            if(!error){
+                response.status(200).json({
+                    message: "Email sent",
+                    type: "sucess",
+                })
+            } 
+        } catch (error) {
+            return response.status(500).json({
+                message: "Email Sent Failed!",
+                type: "error",
+            })
+        }
+        
+        return response.status(201).json({
             message: "User created successfully",
             type: "success",
             id: newUser.id,
         })
     } catch (error) {
-        response.json(error);
         response.status(500).json({
             message: "Sign Up Failed!",
             type: "error",
@@ -46,27 +82,15 @@ exports.postUserByLogin = async(request, response) => {
         console.log(password);
         const user = await User.findOne({ where: { email: email } });
         console.log(user);
-        if (!user) {
-            return response.status(400).json({
-                message: "User does not exist!",
-                type: "error"
-            })
-        }
-
-        if (password !== user.password) {
-            return response.status(400).json({
-                message: "Incorrect Password",
-                type: "error",
-            })
-        }
-        return response.status(200).json({
+    
+        response.status(200).json({
             message: "Login Successfully!",
             type: "success",
             id: user.id,
         })
 
     } catch (error) {
-        response.status(500).json({
+        return response.status(500).json({
             message: "Sign In Failed!",
             type: "error",
         });
@@ -122,3 +146,22 @@ exports.deleteUser = async (request, response) => {
         });
     }
 };
+
+exports.verifyCode = async (resquest, response) => {
+    try {
+        const {id, code } = request.body;
+        const result = await User.findOne({
+            where: { id }
+        });
+        console.log(result);
+        response.status(201).json({
+            message: "Code verified successfully",
+            type: "success"
+        })
+    } catch (error) {
+        response.status(500).json({
+            message: "Code verification Failed!",
+            type: "error",
+        });
+    }
+}

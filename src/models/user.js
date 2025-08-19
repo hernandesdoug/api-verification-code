@@ -31,6 +31,10 @@ const User = sequelize.define("newUser", {
         type: DataTypes.STRING,
         allowNull: false,
     },
+    verificationCode: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+  },
  }, {
         timestamps: false,
 });
