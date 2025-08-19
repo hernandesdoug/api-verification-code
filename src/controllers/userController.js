@@ -1,7 +1,6 @@
-const { response } = require("express");
 const User = require("../models/user");
 const nodemailer = require("nodemailer");
-const { json } = require("sequelize");
+
 
 const transport = nodemailer.createTransport({
     host: "smtp-mail.outlook.com",
@@ -16,10 +15,9 @@ const transport = nodemailer.createTransport({
 exports.getUser = async (request, response) => {
     try {
         const result = await User.findAll();
-        response.json(result);
+        return response.json(result);
     } catch (error) {
-        response.json(error);
-        response.status(500).json({
+        return response.status(500).json({
             message: "Error retrieving users!",
             type: "error",
         });
@@ -50,7 +48,7 @@ exports.postUser = async (request, response) => {
                 text: `Hello, here your verification code ${verificationCode}`
             }); 
             if(!error){
-                response.status(200).json({
+                return response.status(200).json({
                     message: "Email sent",
                     type: "sucess",
                 })
@@ -68,7 +66,7 @@ exports.postUser = async (request, response) => {
             id: newUser.id,
         })
     } catch (error) {
-        response.status(500).json({
+        return response.status(500).json({
             message: "Sign Up Failed!",
             type: "error",
         });
@@ -78,12 +76,22 @@ exports.postUser = async (request, response) => {
 exports.postUserByLogin = async(request, response) => {
     try {
         const { email, password } = request.body;
-        console.log(email);
-        console.log(password);
         const user = await User.findOne({ where: { email: email } });
-        console.log(user);
-    
-        response.status(200).json({
+
+        if(!email){
+            return response.status(400).json({
+                message: "Invalid email",
+                type: "error",
+            });
+        }
+
+        if (!password) {
+            return response.status(400).json({
+                message: "Incorrect Password",
+                type: "error",
+            });
+        }
+        return response.status(200).json({
             message: "Login Successfully!",
             type: "success",
             id: user.id,
@@ -103,9 +111,9 @@ exports.getUserById = async (request, response) => {
         const result = await User.findOne({
             where: { id }
         });
-        response.json(result);
+        return response.json(result);
     } catch (error) {
-        response.status(500).json({
+        return response.status(500).json({
             message: "Recover Id Failed!",
             type: "error",
         });
@@ -119,9 +127,9 @@ exports.updateUser = async (request, response) => {
         const result = await User.update(body, {
             where: { id }
         });
-        response.json(result);
+        return response.json(result);
     } catch (error) {
-        response.status(500).json({
+        return response.status(500).json({
             message: "Update Failed!",
             type: "error",
         });
@@ -134,13 +142,13 @@ exports.deleteUser = async (request, response) => {
         const result = await User.destroy({
             where: { id }
         });
-        console.log(result);
-        response.status(201).json({
+       
+        return response.status(201).json({
             message: "User deleted successfully",
             type: "success"
         })
     } catch (error) {
-        response.status(500).json({
+        return response.status(500).json({
             message: "Delete Failed!",
             type: "error",
         });
