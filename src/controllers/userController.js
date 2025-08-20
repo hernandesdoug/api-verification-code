@@ -3,13 +3,13 @@ const nodemailer = require("nodemailer");
 
 
 const transport = nodemailer.createTransport({
-    host: "smtp-mail.outlook.com",
-    port: 587,
-    secure: false,
+    service: "gmail",
     auth: {
-        user: process.env.EMAIL_USER, 
+        user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASSWORD
-    }
+    },
+    debug: true,
+    logger: true
 });
 
 exports.getUser = async (request, response) => {
@@ -35,31 +35,25 @@ exports.postUser = async (request, response) => {
             });
         }
         let verificationCode = "";
-        for (let i = 0; i < 4; i++){
-            verificationCode += Math.floor(Math.random()*9);
+        for (let i = 0; i < 4; i++) {
+            verificationCode += Math.floor(Math.random() * 9);
         }
         const newUser = new User({ firstName, lastName, email, dateBirth, phoneNumber, password, verificationCode })
         await newUser.save();
-        try {
-            await transport.sendMail({
-                from: "devcontateste@outlook.com",
-                to: email,
-                subject: "Verification Code",
-                text: `Hello, here your verification code ${verificationCode}`
-            }); 
-            if(!error){
-                return response.status(200).json({
-                    message: "Email sent",
-                    type: "sucess",
-                })
-            } 
-        } catch (error) {
-            return response.status(500).json({
-                message: "Email Sent Failed!",
-                type: "error",
-            })
+
+        await transport.sendMail({
+            from: "hernandesbdoug@gmail.com",
+            to: email,
+            subject: "Verification Code",
+            text: "Welcome!",
+            html: `<p>Hello, here your verification code ${verificationCode}</p>`
+        });
+        if (!error) {
+           console.log("Email sent!", response);
+        } else {
+            console.log("Email failed to send!", error);
         }
-        
+
         return response.status(201).json({
             message: "User created successfully",
             type: "success",
@@ -73,12 +67,12 @@ exports.postUser = async (request, response) => {
     }
 };
 
-exports.postUserByLogin = async(request, response) => {
+exports.postUserByLogin = async (request, response) => {
     try {
         const { email, password } = request.body;
         const user = await User.findOne({ where: { email: email } });
 
-        if(!email){
+        if (!email) {
             return response.status(400).json({
                 message: "Invalid email",
                 type: "error",
@@ -142,7 +136,7 @@ exports.deleteUser = async (request, response) => {
         const result = await User.destroy({
             where: { id }
         });
-       
+
         return response.status(201).json({
             message: "User deleted successfully",
             type: "success"
@@ -157,15 +151,21 @@ exports.deleteUser = async (request, response) => {
 
 exports.verifyCode = async (resquest, response) => {
     try {
-        const {id, code } = request.body;
-        const result = await User.findOne({
+        const { id, code } = request.body;
+        const user = await User.findOne({
             where: { id }
         });
-        console.log(result);
-        response.status(201).json({
-            message: "Code verified successfully",
-            type: "success"
-        })
+        if(code != user.code) {
+            return response.status(400).json({
+                message: "Invalid code, please type the correct one!",
+                type: "error",
+            });
+        }else {
+            response.status(201).json({
+                message: "Code verified successfully",
+                type: "success"
+            })
+        } 
     } catch (error) {
         response.status(500).json({
             message: "Code verification Failed!",
