@@ -44,22 +44,23 @@ exports.postUser = async (request, response) => {
         await transport.sendMail({
             from: "hernandesbdoug@gmail.com",
             to: email,
-            subject: "Verification Code",
-            text: "Welcome!",
-            html: `<p>Hello, here your verification code ${verificationCode}</p>`
+            subject: "Your Verification Code",
+            html: `<h1>Welcome, ${firstName}!</h1>
+                <p>Hello, here's your verification code ${verificationCode}</p>`
         });
-        if (!error) {
-           console.log("Email sent!", response);
-        } else {
-            console.log("Email failed to send!", error);
-        }
-
+        // if (!error) {
+        //    console.log("Email sent!", response);
+        // } else {
+        //     console.log("Email failed to send!", error);
+        // }
+        console.log(response);
         return response.status(201).json({
             message: "User created successfully",
             type: "success",
             id: newUser.id,
         })
     } catch (error) {
+        console.log(error);
         return response.status(500).json({
             message: "Sign Up Failed!",
             type: "error",
@@ -72,14 +73,14 @@ exports.postUserByLogin = async (request, response) => {
         const { email, password } = request.body;
         const user = await User.findOne({ where: { email: email } });
 
-        if (!email) {
+        if (email !== user.email) {
             return response.status(400).json({
                 message: "Invalid email",
                 type: "error",
             });
         }
 
-        if (!password) {
+        if (password !== user.password) {
             return response.status(400).json({
                 message: "Incorrect Password",
                 type: "error",
@@ -136,7 +137,7 @@ exports.deleteUser = async (request, response) => {
         const result = await User.destroy({
             where: { id }
         });
-
+        console.log(result)
         return response.status(201).json({
             message: "User deleted successfully",
             type: "success"
@@ -149,7 +150,7 @@ exports.deleteUser = async (request, response) => {
     }
 };
 
-exports.verifyCode = async (resquest, response) => {
+exports.verifyCode = async (request, response) => {
     try {
         const { id, code } = request.body;
         const user = await User.findOne({
