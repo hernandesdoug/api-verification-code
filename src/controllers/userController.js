@@ -152,11 +152,11 @@ exports.deleteUser = async (request, response) => {
 
 exports.verifyCode = async (request, response) => {
     try {
-        const { id, code } = request.body;
+        const { id, verificationCode } = request.body;
         const user = await User.findOne({
             where: { id }
         });
-        if(code != user.code) {
+        if(verificationCode != user.verificationCode) {
             return response.status(400).json({
                 message: "Invalid code, please type the correct one!",
                 type: "error",

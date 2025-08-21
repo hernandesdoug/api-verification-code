@@ -15,6 +15,6 @@ userRoutes.put("/user/:id", userController.updateUser);
 
 userRoutes.delete("/user/:id", userController.deleteUser);
 
-userRoutes.get("/user/:id/:code", userController.verifyCode);
+userRoutes.post("/user/:id/:code", userController.verifyCode);
 
 module.exports = userRoutes;
